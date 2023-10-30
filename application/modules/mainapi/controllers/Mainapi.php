@@ -25,6 +25,11 @@ class Mainapi extends MX_Controller {
         $this->mainapi->checkapi();
     }
 
+    public function checklogin()
+    {
+        $this->mainapi->checklogin();
+    }
+
     public function checkdataworkplan()
     {
         $this->mainapi->getdataProdleadtime();
