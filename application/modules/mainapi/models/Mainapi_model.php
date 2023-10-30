@@ -628,6 +628,7 @@ class Mainapi_model extends CI_Model {
                     $nextStationFail = false;
     
                     $mixStartDate = "";
+                    $mixStartDateCalc = "";
                     $extStartDate = "";
                     $sepStartDate = "";
     
@@ -645,6 +646,7 @@ class Mainapi_model extends CI_Model {
                         if($rs->OpeNum == '10'){
                             $leadtimeMix_seconds[] = $dataleadtime_seconds;
                             $mixStartDate = conDateTimeFromDb($rs->TransDateFormTime);
+                            $mixStartDateCalc = strtotime($rs->TransDateFormTime);
                         }else if($rs->OpeNum == '20'){
                             $leadtimeExt_seconds[] = $dataleadtime_seconds;
                             $extStartDate = conDateTimeFromDb($rs->TransDateFormTime);
@@ -913,6 +915,14 @@ class Mainapi_model extends CI_Model {
                     }else{
                         $queryWrkctrid_30 ="";
                     }
+
+                    //cal จัดเตรียม -> Mixer
+                    $procureDoneDocTomixStartDate = "";
+                    if($calProcureDone != "" && $mixStartDateCalc != ""){
+                        if($mixStartDateCalc > $calProcureDone){
+                            $procureDoneDocTomixStartDate = $mixStartDateCalc - $calProcureDone;
+                        }
+                    }
     
                     $dataAll = array(
                         "Prodid" => $prodid,
@@ -968,6 +978,8 @@ class Mainapi_model extends CI_Model {
                         "leadtimeProcureToProcuredoneDecimal" => conTimeSecToDecimal($leadtimeProcureToProcuredone),
     
                         "checkadjustremixnormal" => $queryCheckAdjustRerun,
+                        "procureDoneDocTomixStartDate" => conTime($procureDoneDocTomixStartDate),
+                        "procureDoneDocTomixStartDateDecimal" => conTimeSecToDecimal($procureDoneDocTomixStartDate),
                     );
     
                     // if(count($sqljobcard->result()) !== 0){
@@ -1523,6 +1535,7 @@ class Mainapi_model extends CI_Model {
                 $nextStationFail = false;
 
                 $mixStartDate = "";
+                $mixStartDateCalc = "";
                 $extStartDate = "";
                 $sepStartDate = "";
 
@@ -1540,6 +1553,7 @@ class Mainapi_model extends CI_Model {
                     if($rs->OpeNum == '10'){
                         $leadtimeMix_seconds[] = $dataleadtime_seconds;
                         $mixStartDate = conDateTimeFromDb($rs->TransDateFormTime);
+                        $mixStartDateCalc = strtotime($rs->TransDateFormTime);
                     }else if($rs->OpeNum == '20'){
                         $leadtimeExt_seconds[] = $dataleadtime_seconds;
                         $extStartDate = conDateTimeFromDb($rs->TransDateFormTime);
@@ -1809,6 +1823,14 @@ class Mainapi_model extends CI_Model {
                     $queryWrkctrid_30 ="";
                 }
 
+                //cal จัดเตรียม -> Mixer
+                $procureDoneDocTomixStartDate = "";
+                if($calProcureDone != "" && $mixStartDateCalc != ""){
+                    if($mixStartDateCalc > $calProcureDone){
+                        $procureDoneDocTomixStartDate = $mixStartDateCalc - $calProcureDone;
+                    }
+                }
+
                 $dataAll = array(
                     "Prodid" => $prodid,
                     "dataAreaid" => $areaid,
@@ -1863,6 +1885,8 @@ class Mainapi_model extends CI_Model {
                     "leadtimeProcureToProcuredoneDecimal" => conTimeSecToDecimal($leadtimeProcureToProcuredone),
 
                     "checkadjustremixnormal" => $queryCheckAdjustRerun,
+                    "procureDoneDocTomixStartDate" => conTime($procureDoneDocTomixStartDate),
+                    "procureDoneDocTomixStartDateDecimal" => conTimeSecToDecimal($procureDoneDocTomixStartDate),
                 );
 
                 $dataResult[] = $dataAll;
@@ -1886,35 +1910,37 @@ class Mainapi_model extends CI_Model {
             $objPHPExcel->getActiveSheet()->setCellValue('g1', 'Item No');
             $objPHPExcel->getActiveSheet()->setCellValue('h1', 'Batch No');
             $objPHPExcel->getActiveSheet()->setCellValue('i1', 'QTY');
-            $objPHPExcel->getActiveSheet()->setCellValue('j1', 'Start ใบเบิก');
-            $objPHPExcel->getActiveSheet()->setCellValue('k1', 'Start ใบเบิก > จอง Lot');
-            $objPHPExcel->getActiveSheet()->setCellValue('l1', 'Start ใบเบิก > จอง Lot');
-            $objPHPExcel->getActiveSheet()->setCellValue('m1', 'จอง Lot');
-            $objPHPExcel->getActiveSheet()->setCellValue('n1', 'จอง Lot > จ่ายของ');
-            $objPHPExcel->getActiveSheet()->setCellValue('o1', 'จอง Lot > จ่ายของ');
-            $objPHPExcel->getActiveSheet()->setCellValue('p1', 'จ่ายของ');
-            $objPHPExcel->getActiveSheet()->setCellValue('q1', 'จ่ายของ > จัดเตรียม');
-            $objPHPExcel->getActiveSheet()->setCellValue('r1', 'จ่ายของ > จัดเตรียม');
-            $objPHPExcel->getActiveSheet()->setCellValue('s1', 'จัดเตรียม');
-            $objPHPExcel->getActiveSheet()->setCellValue('t1', 'Mixer');
-            $objPHPExcel->getActiveSheet()->setCellValue('u1', 'Mix Leadtime');
-            $objPHPExcel->getActiveSheet()->setCellValue('v1', 'Mix Leadtime');
-            $objPHPExcel->getActiveSheet()->setCellValue('w1', 'Mix Waittime');
-            $objPHPExcel->getActiveSheet()->setCellValue('x1', 'Mix Waittime');
-            $objPHPExcel->getActiveSheet()->setCellValue('y1', 'Next Station Waittime');
-            $objPHPExcel->getActiveSheet()->setCellValue('z1', 'Next Station Waittime');
-            $objPHPExcel->getActiveSheet()->setCellValue('aa1', 'Extrude');
-            $objPHPExcel->getActiveSheet()->setCellValue('ab1', 'Ext Leadtime');
-            $objPHPExcel->getActiveSheet()->setCellValue('ac1', 'Ext Leadtime');
-            $objPHPExcel->getActiveSheet()->setCellValue('ad1', 'Ext Waittime');
-            $objPHPExcel->getActiveSheet()->setCellValue('ae1', 'Ext Waittime');
-            $objPHPExcel->getActiveSheet()->setCellValue('af1', 'Next Station Waittime');
-            $objPHPExcel->getActiveSheet()->setCellValue('ag1', 'Next Station Waittime');
-            $objPHPExcel->getActiveSheet()->setCellValue('ah1', 'Separate');
-            $objPHPExcel->getActiveSheet()->setCellValue('ai1', 'Sep Leadtime');
-            $objPHPExcel->getActiveSheet()->setCellValue('aj1', 'Sep Leadtime');
-            $objPHPExcel->getActiveSheet()->setCellValue('ak1', 'Sep Waittime');
-            $objPHPExcel->getActiveSheet()->setCellValue('al1', 'Sep Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('j1', 'Startใบเบิก');
+            $objPHPExcel->getActiveSheet()->setCellValue('k1', 'Startใบเบิก -> จองLot');
+            $objPHPExcel->getActiveSheet()->setCellValue('l1', 'Startใบเบิก -> จองLot');
+            $objPHPExcel->getActiveSheet()->setCellValue('m1', 'จองLot');
+            $objPHPExcel->getActiveSheet()->setCellValue('n1', 'จองLot -> จ่ายของเสร็จ');
+            $objPHPExcel->getActiveSheet()->setCellValue('o1', 'จองLot -> จ่ายของเสร็จ');
+            $objPHPExcel->getActiveSheet()->setCellValue('p1', 'จ่ายของเสร็จ');
+            $objPHPExcel->getActiveSheet()->setCellValue('q1', 'จ่ายของเสร็จ -> จัดเตรียมเสร็จ');
+            $objPHPExcel->getActiveSheet()->setCellValue('r1', 'จ่ายของเสร็จ -> จัดเตรียมเสร็จ');
+            $objPHPExcel->getActiveSheet()->setCellValue('s1', 'จัดเตรียมเสร็จ');
+            $objPHPExcel->getActiveSheet()->setCellValue('t1', 'จัดเตรียมเสร็จ -> Mixer');
+            $objPHPExcel->getActiveSheet()->setCellValue('u1', 'จัดเตรียมเสร็จ -> Mixer');
+            $objPHPExcel->getActiveSheet()->setCellValue('v1', 'Mixer');
+            $objPHPExcel->getActiveSheet()->setCellValue('w1', 'Mix Leadtime');
+            $objPHPExcel->getActiveSheet()->setCellValue('x1', 'Mix Leadtime');
+            $objPHPExcel->getActiveSheet()->setCellValue('y1', 'Mix Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('z1', 'Mix Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('aa1', 'Next Station Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('ab1', 'Next Station Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('ac1', 'Extrude');
+            $objPHPExcel->getActiveSheet()->setCellValue('ad1', 'Ext Leadtime');
+            $objPHPExcel->getActiveSheet()->setCellValue('ae1', 'Ext Leadtime');
+            $objPHPExcel->getActiveSheet()->setCellValue('af1', 'Ext Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('ag1', 'Ext Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('ah1', 'Next Station Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('ai1', 'Next Station Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('aj1', 'Separate');
+            $objPHPExcel->getActiveSheet()->setCellValue('ak1', 'Sep Leadtime');
+            $objPHPExcel->getActiveSheet()->setCellValue('al1', 'Sep Leadtime');
+            $objPHPExcel->getActiveSheet()->setCellValue('am1', 'Sep Waittime');
+            $objPHPExcel->getActiveSheet()->setCellValue('an1', 'Sep Waittime');
     
             // Loop Time
             $t1 = 2;
@@ -1939,25 +1965,27 @@ class Mainapi_model extends CI_Model {
                 $objPHPExcel->getActiveSheet()->setCellValue('q'.$t1 , $dataResult[$ii]['leadtimeProcureToProcuredoneDecimal']);
                 $objPHPExcel->getActiveSheet()->setCellValue('r'.$t1 , $dataResult[$ii]['leadtimeProcureToProcuredone']);
                 $objPHPExcel->getActiveSheet()->setCellValue('s'.$t1 , $dataResult[$ii]['procureDoneDocDateTime']);
-                $objPHPExcel->getActiveSheet()->setCellValue('t'.$t1 , $dataResult[$ii]['mixStartDate']);
-                $objPHPExcel->getActiveSheet()->setCellValue('u'.$t1 , $dataResult[$ii]['dataMixLeadtime']);
-                $objPHPExcel->getActiveSheet()->setCellValue('v'.$t1 , $dataResult[$ii]['dataMixLeadtime2']);
-                $objPHPExcel->getActiveSheet()->setCellValue('w'.$t1 , $dataResult[$ii]['dataMixWaitTime']);
-                $objPHPExcel->getActiveSheet()->setCellValue('x'.$t1 , $dataResult[$ii]['dataMixWaitTime2']);
-                $objPHPExcel->getActiveSheet()->setCellValue('y'.$t1 , $dataResult[$ii]['dataExtWait1']);
-                $objPHPExcel->getActiveSheet()->setCellValue('z'.$t1 , $dataResult[$ii]['dataExtWait2']);
-                $objPHPExcel->getActiveSheet()->setCellValue('aa'.$t1 , $dataResult[$ii]['extStartDate']);
-                $objPHPExcel->getActiveSheet()->setCellValue('ab'.$t1 , $dataResult[$ii]['dataExtLeadtime']);
-                $objPHPExcel->getActiveSheet()->setCellValue('ac'.$t1 , $dataResult[$ii]['dataExtLeadtime2']);
-                $objPHPExcel->getActiveSheet()->setCellValue('ad'.$t1 , $dataResult[$ii]['dataExtWaitTime']);
-                $objPHPExcel->getActiveSheet()->setCellValue('ae'.$t1 , $dataResult[$ii]['dataExtWaitTime2']);
-                $objPHPExcel->getActiveSheet()->setCellValue('af'.$t1 , $dataResult[$ii]['dataSepWait1']);
-                $objPHPExcel->getActiveSheet()->setCellValue('ag'.$t1 , $dataResult[$ii]['dataSepWait2']);
-                $objPHPExcel->getActiveSheet()->setCellValue('ah'.$t1 , $dataResult[$ii]['sepStartDate']);
-                $objPHPExcel->getActiveSheet()->setCellValue('ai'.$t1 , $dataResult[$ii]['dataSepLeadtime']);
-                $objPHPExcel->getActiveSheet()->setCellValue('aj'.$t1 , $dataResult[$ii]['dataSepLeadtime2']);
-                $objPHPExcel->getActiveSheet()->setCellValue('ak'.$t1 , $dataResult[$ii]['dataSepWaitTime']);
-                $objPHPExcel->getActiveSheet()->setCellValue('al'.$t1 , $dataResult[$ii]['dataSepWaitTime2']);
+                $objPHPExcel->getActiveSheet()->setCellValue('t'.$t1 , $dataResult[$ii]['procureDoneDocTomixStartDateDecimal']);
+                $objPHPExcel->getActiveSheet()->setCellValue('u'.$t1 , $dataResult[$ii]['procureDoneDocTomixStartDate']);
+                $objPHPExcel->getActiveSheet()->setCellValue('v'.$t1 , $dataResult[$ii]['mixStartDate']);
+                $objPHPExcel->getActiveSheet()->setCellValue('w'.$t1 , $dataResult[$ii]['dataMixLeadtime']);
+                $objPHPExcel->getActiveSheet()->setCellValue('x'.$t1 , $dataResult[$ii]['dataMixLeadtime2']);
+                $objPHPExcel->getActiveSheet()->setCellValue('y'.$t1 , $dataResult[$ii]['dataMixWaitTime']);
+                $objPHPExcel->getActiveSheet()->setCellValue('z'.$t1 , $dataResult[$ii]['dataMixWaitTime2']);
+                $objPHPExcel->getActiveSheet()->setCellValue('aa'.$t1 , $dataResult[$ii]['dataExtWait1']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ab'.$t1 , $dataResult[$ii]['dataExtWait2']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ac'.$t1 , $dataResult[$ii]['extStartDate']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ad'.$t1 , $dataResult[$ii]['dataExtLeadtime']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ae'.$t1 , $dataResult[$ii]['dataExtLeadtime2']);
+                $objPHPExcel->getActiveSheet()->setCellValue('af'.$t1 , $dataResult[$ii]['dataExtWaitTime']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ag'.$t1 , $dataResult[$ii]['dataExtWaitTime2']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ah'.$t1 , $dataResult[$ii]['dataSepWait1']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ai'.$t1 , $dataResult[$ii]['dataSepWait2']);
+                $objPHPExcel->getActiveSheet()->setCellValue('aj'.$t1 , $dataResult[$ii]['sepStartDate']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ak'.$t1 , $dataResult[$ii]['dataSepLeadtime']);
+                $objPHPExcel->getActiveSheet()->setCellValue('al'.$t1 , $dataResult[$ii]['dataSepLeadtime2']);
+                $objPHPExcel->getActiveSheet()->setCellValue('am'.$t1 , $dataResult[$ii]['dataSepWaitTime']);
+                $objPHPExcel->getActiveSheet()->setCellValue('an'.$t1 , $dataResult[$ii]['dataSepWaitTime2']);
     
                 $t1++;
             }
