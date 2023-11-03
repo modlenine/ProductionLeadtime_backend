@@ -573,6 +573,7 @@ class Mainapi_model extends CI_Model {
                     $itemno = $row->itemid;
                     $batchno = $row->inventbatchid;
                     $qtysched = $row->qtysched;
+                    $confirmshippingdate = $row->slc_shippingdateconfirmed;
     
                     $sqljobcard = $this->queryJobcard($prodid , $areaid);
     
@@ -683,6 +684,9 @@ class Mainapi_model extends CI_Model {
                     $mixStartDateCalc = "";
                     $extStartDate = "";
                     $sepStartDate = "";
+
+                    // หาข้อมูลวันที่ผลิตเสร็จ
+                    $production_completed_array = [];
     
                     foreach($sqljobcard->result() as $rs){
                         
@@ -878,12 +882,11 @@ class Mainapi_model extends CI_Model {
                             $nextStationWaittimeExtAndSep[] = 999999;
                         }
                         // คำนวณหาค่า Wait time ของแต่ละ Station
+
+                        // หาข้อมูลวันเวลาที่ผลิตเสร็จ
+                        $production_completed_array[] = $rs->TransDateToTime;
                     }
     
-    
-                    // foreach($sqljobcard->result() as $rs){
-    
-                    // }
     
                     //คำนวณหาค่า Wait time ใน operation ตัวเอง
                     //mix
@@ -943,7 +946,7 @@ class Mainapi_model extends CI_Model {
                     }
     
 
-
+                    // หาชื่อเครื่องจักร
                     $queryWrkctrid_10 ="";
                     $queryWrkctrid_20 ="";
                     $queryWrkctrid_30 ="";
@@ -967,6 +970,8 @@ class Mainapi_model extends CI_Model {
                     }else{
                         $queryWrkctrid_30 ="";
                     }
+                    // หาชื่อเครื่องจักร
+
 
                     //cal จัดเตรียม -> Mixer
                     $procureDoneDocTomixStartDate = "";
@@ -975,6 +980,36 @@ class Mainapi_model extends CI_Model {
                             $procureDoneDocTomixStartDate = $mixStartDateCalc - $calProcureDone;
                         }
                     }
+                    //cal จัดเตรียม -> Mixer
+
+
+                    //หาค่าของการผลิตเสร็จ
+                    $production_completedClac = "";
+                    $production_completed = end($production_completed_array);
+                    if($production_completed != ""){
+                        $production_completedClac = strtotime($production_completed);
+                        $production_completed = conDateTimeFromDb($production_completed);
+                    }else{
+                        $production_completedClac = "";
+                    }
+                    
+
+                    //หาค่าของวันเวลา Post GR
+                    $postGrCalc = "";
+                    $postGrDatetime = "";
+                    if($this->queryPostGr($prodid , $areaid)->row() !== null){
+                        $postGrCalc = strtotime(conDateTimeToDb($this->queryPostGr($prodid , $areaid)->row()->posteddatetime));
+                        $postGrDatetime = conDateTimeFromDb($this->queryPostGr($prodid , $areaid)->row()->posteddatetime);
+                    }else{
+                        $postGrCalc = "";
+                        $postGrDatetime = "";
+                    }
+
+                    $procutionCompToGr = "";
+                    if($postGrCalc > $production_completedClac){
+                        $procutionCompToGr = $postGrCalc - $production_completedClac;
+                    }
+
     
                     $dataAll = array(
                         "Prodid" => $prodid,
@@ -1032,6 +1067,12 @@ class Mainapi_model extends CI_Model {
                         "checkadjustremixnormal" => $queryCheckAdjustRerun,
                         "procureDoneDocTomixStartDate" => conTime($procureDoneDocTomixStartDate),
                         "procureDoneDocTomixStartDateDecimal" => conTimeSecToDecimal($procureDoneDocTomixStartDate),
+
+                        "production_completedDate" => $production_completed,
+                        "grDatetime" => "$postGrDatetime",
+                        "productionCompToGr" => conTime($procutionCompToGr),
+                        "productionCompToGrDecimal" => conTimeSecToDecimal($procutionCompToGr),
+                        "confirmshippingdate" => conDateFromDb($confirmshippingdate),
                     );
     
                     // if(count($sqljobcard->result()) !== 0){
@@ -1116,7 +1157,8 @@ class Mainapi_model extends CI_Model {
 		prodtable.inventdimid,
 		prodtable.itemid,
 		inventdim.inventbatchid,
-        prodtable.qtysched
+        prodtable.qtysched,
+        prodtable.slc_shippingdateconfirmed
         FROM
         prodtable
 		inner join inventdim on inventdim.inventdimid = prodtable.inventdimid
@@ -1126,14 +1168,15 @@ class Mainapi_model extends CI_Model {
         and inventdim.configid in ('TWIN-L' , 'TWIN-58')
         and prodroute.oprid NOT LIKE '%repac%' $queryFilterDate $queryFilterProdid $queryFilterBatchno $queryFilterItemno 
         -- AND prodtable.finisheddate between '2023-08-01' and '2023-10-09'
-        -- and prodtable.prodid = 'PD66004080'
+        -- and prodtable.prodid = 'PD66004540'
         group by prodtable.dataareaid , 
         prodtable.prodid , 
         prodtable.inventdimid , 
         prodtable.itemid , 
         inventdim.inventbatchid , 
         prodtable.qtysched,
-        prodtable.realdate
+        prodtable.realdate,
+        prodtable.slc_shippingdateconfirmed
         order by prodtable.prodid desc
         OFFSET $startIndex ROWS
         FETCH NEXT $pageSize ROWS ONLY;
@@ -1181,7 +1224,8 @@ class Mainapi_model extends CI_Model {
 		prodtable.inventdimid,
 		prodtable.itemid,
 		inventdim.inventbatchid,
-        prodtable.qtysched
+        prodtable.qtysched,
+        prodtable.slc_shippingdateconfirmed
         FROM
         prodtable
 		inner join inventdim on inventdim.inventdimid = prodtable.inventdimid
@@ -1198,7 +1242,8 @@ class Mainapi_model extends CI_Model {
         prodtable.itemid , 
         inventdim.inventbatchid , 
         prodtable.qtysched,
-        prodtable.realdate
+        prodtable.realdate,
+        prodtable.slc_shippingdateconfirmed
         order by prodtable.realdate desc
         ");
 
@@ -1453,6 +1498,18 @@ class Mainapi_model extends CI_Model {
         }
     }
 
+    private function queryPostGr($prodid , $areaid)
+    {
+        $sql = $this->dbsql->query("SELECT TOP 1
+        prodjournaltable.vcwmsstatus,
+        SWITCHOFFSET(prodjournaltable.posteddatetime, '+07:00')AS posteddatetime
+        FROM prodjournaltable 
+        WHERE prodjournaltable.journalnameid = 'RASF' AND 
+        prodjournaltable.prodid = '$prodid' AND dataareaid = '$areaid'
+        ORDER BY prodjournaltable.posteddatetime ASC");
+        return $sql;
+    }
+
     public function exportdata()
     {
         if($this->input->post("startdate") != "" && $this->input->post("enddate") != ""){
@@ -1480,6 +1537,7 @@ class Mainapi_model extends CI_Model {
                 $itemno = $row->itemid;
                 $batchno = $row->inventbatchid;
                 $qtysched = $row->qtysched;
+                $confirmshippingdate = $row->slc_shippingdateconfirmed;
 
                 $sqljobcard = $this->queryJobcard($prodid , $areaid);
 
@@ -1590,6 +1648,9 @@ class Mainapi_model extends CI_Model {
                 $mixStartDateCalc = "";
                 $extStartDate = "";
                 $sepStartDate = "";
+
+                // หาข้อมูลวันที่ผลิตเสร็จ
+                $production_completed_array = [];
 
                 foreach($sqljobcard->result() as $rs){
                     
@@ -1785,12 +1846,12 @@ class Mainapi_model extends CI_Model {
                         $nextStationWaittimeExtAndSep[] = 999999;
                     }
                     // คำนวณหาค่า Wait time ของแต่ละ Station
+
+                    // หาข้อมูลวันเวลาที่ผลิตเสร็จ
+                    $production_completed_array[] = $rs->TransDateToTime;
                 }
 
 
-                // foreach($sqljobcard->result() as $rs){
-
-                // }
 
                 //คำนวณหาค่า Wait time ใน operation ตัวเอง
                 //mix
@@ -1883,6 +1944,34 @@ class Mainapi_model extends CI_Model {
                     }
                 }
 
+
+                //หาค่าของการผลิตเสร็จ
+                $production_completedClac = "";
+                $production_completed = end($production_completed_array);
+                if($production_completed != ""){
+                    $production_completedClac = strtotime($production_completed);
+                    $production_completed = conDateTimeFromDb($production_completed);
+                }else{
+                    $production_completedClac = "";
+                }
+
+                //หาค่าของวันเวลา Post GR
+                $postGrCalc = "";
+                $postGrDatetime = "";
+                if($this->queryPostGr($prodid , $areaid)->row() !== null){
+                    $postGrCalc = strtotime(conDateTimeToDb($this->queryPostGr($prodid , $areaid)->row()->posteddatetime));
+                    $postGrDatetime = conDateTimeFromDb($this->queryPostGr($prodid , $areaid)->row()->posteddatetime);
+                }else{
+                    $postGrCalc = "";
+                    $postGrDatetime = "";
+                }
+
+                $procutionCompToGr = "";
+                if($postGrCalc > $production_completedClac){
+                    $procutionCompToGr = $postGrCalc - $production_completedClac;
+                }
+
+
                 $dataAll = array(
                     "Prodid" => $prodid,
                     "dataAreaid" => $areaid,
@@ -1939,6 +2028,13 @@ class Mainapi_model extends CI_Model {
                     "checkadjustremixnormal" => $queryCheckAdjustRerun,
                     "procureDoneDocTomixStartDate" => conTime($procureDoneDocTomixStartDate),
                     "procureDoneDocTomixStartDateDecimal" => conTimeSecToDecimal($procureDoneDocTomixStartDate),
+
+
+                    "production_completedDate" => $production_completed,
+                    "grDatetime" => "$postGrDatetime",
+                    "productionCompToGr" => conTime($procutionCompToGr),
+                    "productionCompToGrDecimal" => conTimeSecToDecimal($procutionCompToGr),
+                    "confirmshippingdate" => conDateFromDb($confirmshippingdate),
                 );
 
                 $dataResult[] = $dataAll;
@@ -1993,6 +2089,12 @@ class Mainapi_model extends CI_Model {
             $objPHPExcel->getActiveSheet()->setCellValue('al1', 'Sep Leadtime');
             $objPHPExcel->getActiveSheet()->setCellValue('am1', 'Sep Waittime');
             $objPHPExcel->getActiveSheet()->setCellValue('an1', 'Sep Waittime');
+
+            $objPHPExcel->getActiveSheet()->setCellValue('ao1', 'ผลิตเสร็จ');
+            $objPHPExcel->getActiveSheet()->setCellValue('ap1', 'ผลิตเสร็จ -> ออกGR');
+            $objPHPExcel->getActiveSheet()->setCellValue('aq1', 'ผลิตเสร็จ -> ออกGR');
+            $objPHPExcel->getActiveSheet()->setCellValue('ar1', 'ออกGR');
+            $objPHPExcel->getActiveSheet()->setCellValue('as1', 'Confirm Ship Date');
     
             // Loop Time
             $t1 = 2;
@@ -2038,6 +2140,12 @@ class Mainapi_model extends CI_Model {
                 $objPHPExcel->getActiveSheet()->setCellValue('al'.$t1 , $dataResult[$ii]['dataSepLeadtime2']);
                 $objPHPExcel->getActiveSheet()->setCellValue('am'.$t1 , $dataResult[$ii]['dataSepWaitTime']);
                 $objPHPExcel->getActiveSheet()->setCellValue('an'.$t1 , $dataResult[$ii]['dataSepWaitTime2']);
+
+                $objPHPExcel->getActiveSheet()->setCellValue('ao'.$t1 , $dataResult[$ii]['production_completedDate']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ap'.$t1 , $dataResult[$ii]['productionCompToGrDecimal']);
+                $objPHPExcel->getActiveSheet()->setCellValue('aq'.$t1 , $dataResult[$ii]['productionCompToGr']);
+                $objPHPExcel->getActiveSheet()->setCellValue('ar'.$t1 , $dataResult[$ii]['grDatetime']);
+                $objPHPExcel->getActiveSheet()->setCellValue('as'.$t1 , $dataResult[$ii]['confirmshippingdate']);
     
                 $t1++;
             }
