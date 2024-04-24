@@ -76,457 +76,457 @@ class Mainapi_model extends CI_Model {
     }
 
 
-    public function checkdataworkplan()
-    {
+    // public function checkdataworkplan()
+    // {
 
-        $prodidArray = [];
-        $dataareaidArray = [];
-        $formno = [];
-        $countGroup = [];
-        $itemnoArray = [];
-        $batchnoArray = [];
-        $qtyschedArray = [];
+    //     $prodidArray = [];
+    //     $dataareaidArray = [];
+    //     $formno = [];
+    //     $countGroup = [];
+    //     $itemnoArray = [];
+    //     $batchnoArray = [];
+    //     $qtyschedArray = [];
 
-        $queryProdtable = $this->queryProdtable(100);
+    //     $queryProdtable = $this->queryProdtable(100);
 
-        // Iterate over the results and add unique values to the merged array
-        foreach ($queryProdtable->result() as $row) {
-            $prodidArray[] = $row->prodid;
-            $dataareaidArray[] = $row->dataareaid;
-            $itemnoArray[] = $row->itemid;
-            $batchnoArray[] = $row->inventbatchid;
-            $qtyschedArray[] = $row->qtysched;
-        }
+    //     // Iterate over the results and add unique values to the merged array
+    //     foreach ($queryProdtable->result() as $row) {
+    //         $prodidArray[] = $row->prodid;
+    //         $dataareaidArray[] = $row->dataareaid;
+    //         $itemnoArray[] = $row->itemid;
+    //         $batchnoArray[] = $row->inventbatchid;
+    //         $qtyschedArray[] = $row->qtysched;
+    //     }
 
-        $testJobcardData = [];
-        foreach ($prodidArray as $key => $row) {
+    //     $testJobcardData = [];
+    //     foreach ($prodidArray as $key => $row) {
 
-            $areaid = $dataareaidArray[$key];
-            $itemno = $itemnoArray[$key];
-            $batchno = $batchnoArray[$key];
-            $qtysched = $qtyschedArray[$key];
+    //         $areaid = $dataareaidArray[$key];
+    //         $itemno = $itemnoArray[$key];
+    //         $batchno = $batchnoArray[$key];
+    //         $qtysched = $qtyschedArray[$key];
 
-            $sqljobcard = $this->queryJobcard($row , $areaid);
+    //         $sqljobcard = $this->queryJobcard($row , $areaid);
 
-            $sqlStartReceivedDoc = $this->queryStartReceivedDoc($row , $areaid);
-            $journalid = $sqlStartReceivedDoc->row()->journalid;
+    //         $sqlStartReceivedDoc = $this->queryStartReceivedDoc($row , $areaid);
+    //         $journalid = $sqlStartReceivedDoc->row()->journalid;
 
-            $sqlStartPrint = $this->queryStartPrint($journalid , $areaid);
-            $sqlReserved = $this->queryReserved($journalid , $areaid);
-            $sqlProcure = $this->queryProcurematerial($row , $areaid);
-            $sqlProcuredone = $this->queryProcuredone($row , $areaid);
+    //         $sqlStartPrint = $this->queryStartPrint($journalid , $areaid);
+    //         $sqlReserved = $this->queryReserved($journalid , $areaid);
+    //         $sqlProcure = $this->queryProcurematerial($row , $areaid);
+    //         $sqlProcuredone = $this->queryProcuredone($row , $areaid);
 
 
-            //หาเวลาของการ Start ใบเบิก
-            $calStartDoc = "";
-            if($sqlStartPrint->row() !== null){
-                $calStartDoc = strtotime(conDateTimeToDb($sqlStartPrint->row()->concreateddatetime));
-            }else{
-                $calStartDoc = "";
-            }
-            //หาเวลาของการ Start ใบเบิก
+    //         //หาเวลาของการ Start ใบเบิก
+    //         $calStartDoc = "";
+    //         if($sqlStartPrint->row() !== null){
+    //             $calStartDoc = strtotime(conDateTimeToDb($sqlStartPrint->row()->concreateddatetime));
+    //         }else{
+    //             $calStartDoc = "";
+    //         }
+    //         //หาเวลาของการ Start ใบเบิก
 
-            //หาเวลาของการจอง Lot
-            $calReserved = "";
-            if($sqlReserved->row() !== null){
-                $calReserved = strtotime(conDateTimeToDb($sqlReserved->row()->concreateddatetime));
-            }else{
-                $calReserved = "";
-            }
-            //หาเวลาของการจอง Lot
+    //         //หาเวลาของการจอง Lot
+    //         $calReserved = "";
+    //         if($sqlReserved->row() !== null){
+    //             $calReserved = strtotime(conDateTimeToDb($sqlReserved->row()->concreateddatetime));
+    //         }else{
+    //             $calReserved = "";
+    //         }
+    //         //หาเวลาของการจอง Lot
 
-            //หาเวลาของการจัดเตรียมเสร็จ
-            $calProcure = "";
-            if($sqlProcure->row() !== null){
-                $calProcure = strtotime(conDateTimeTodb($sqlProcure->row()->concreateddatetime));
-            }else{
-                $calProcure = "";
-            }
+    //         //หาเวลาของการจัดเตรียมเสร็จ
+    //         $calProcure = "";
+    //         if($sqlProcure->row() !== null){
+    //             $calProcure = strtotime(conDateTimeTodb($sqlProcure->row()->concreateddatetime));
+    //         }else{
+    //             $calProcure = "";
+    //         }
 
-            //หาเวลาของการจ่ายของ
-            $calProcureDone = "";
-            if($sqlProcuredone->row() !== null){
-                $calProcureDone = strtotime(conDateTimeTodb($sqlProcuredone->row()->concreateddatetime));
-            }else{
-                $calProcureDone = "";
-            }
-            //หาเวลาของการจ่ายของ
+    //         //หาเวลาของการจ่ายของ
+    //         $calProcureDone = "";
+    //         if($sqlProcuredone->row() !== null){
+    //             $calProcureDone = strtotime(conDateTimeTodb($sqlProcuredone->row()->concreateddatetime));
+    //         }else{
+    //             $calProcureDone = "";
+    //         }
+    //         //หาเวลาของการจ่ายของ
 
-            $leadtimeStartDocToReserved = "";
-            $leadtimeReservedToProcure = "";
-            $leadtimeProcureToProcuredone = "";
+    //         $leadtimeStartDocToReserved = "";
+    //         $leadtimeReservedToProcure = "";
+    //         $leadtimeProcureToProcuredone = "";
 
-            if($calStartDoc != "" && $calReserved != ""){
-                if($calStartDoc < $calReserved){
-                    $leadtimeStartDocToReserved = $calReserved - $calStartDoc;
-                }
-            }
+    //         if($calStartDoc != "" && $calReserved != ""){
+    //             if($calStartDoc < $calReserved){
+    //                 $leadtimeStartDocToReserved = $calReserved - $calStartDoc;
+    //             }
+    //         }
 
-            if($calReserved != "" && $calProcure != ""){
-                if($calReserved < $calProcure){
-                    $leadtimeReservedToProcure = $calProcure - $calReserved;
-                }
-            }
+    //         if($calReserved != "" && $calProcure != ""){
+    //             if($calReserved < $calProcure){
+    //                 $leadtimeReservedToProcure = $calProcure - $calReserved;
+    //             }
+    //         }
 
-            if($calProcure != "" && $calProcureDone != ""){
-                if($calProcure < $calProcureDone){
-                    $leadtimeProcureToProcuredone = $calProcureDone - $calProcure;
-                }
-            }
+    //         if($calProcure != "" && $calProcureDone != ""){
+    //             if($calProcure < $calProcureDone){
+    //                 $leadtimeProcureToProcuredone = $calProcureDone - $calProcure;
+    //             }
+    //         }
 
-            $dataAll = [];
+    //         $dataAll = [];
 
-            //ข้อมูลชุดใหม่
-            $leadtimeSumMix_seconds = 0;
-            $leadtimeSumExt_seconds = 0;
-            $leadtimeSumSep_seconds = 0;
+    //         //ข้อมูลชุดใหม่
+    //         $leadtimeSumMix_seconds = 0;
+    //         $leadtimeSumExt_seconds = 0;
+    //         $leadtimeSumSep_seconds = 0;
 
-            //ชุดข้อมูลที่เปลี่ยนวิธีการหาค่าใหม่
-            $leadtimeMix_seconds = [];
-            $leadtimeExt_seconds = [];
-            $leadtimeSep_seconds = [];
+    //         //ชุดข้อมูลที่เปลี่ยนวิธีการหาค่าใหม่
+    //         $leadtimeMix_seconds = [];
+    //         $leadtimeExt_seconds = [];
+    //         $leadtimeSep_seconds = [];
             
 
-            $dataGroupMix = [];
-            $dataGroupExt = [];
-            $dataGroupSep = [];
+    //         $dataGroupMix = [];
+    //         $dataGroupExt = [];
+    //         $dataGroupSep = [];
 
-            $dataGroupMixTimedifference_seconds = [];
-            $dataGroupExtTimedifference_seconds = [];
-            $dataGroupSepTimedifference_seconds = [];
+    //         $dataGroupMixTimedifference_seconds = [];
+    //         $dataGroupExtTimedifference_seconds = [];
+    //         $dataGroupSepTimedifference_seconds = [];
 
-            $dataCurrent = [];
-            $dataWaitUse = [];
-            $dataTimedifference_seconds = [];
-            $dataWaitTimedifference_seconds = [];
+    //         $dataCurrent = [];
+    //         $dataWaitUse = [];
+    //         $dataTimedifference_seconds = [];
+    //         $dataWaitTimedifference_seconds = [];
 
-            // check data type
-            $arrayDataCurrent = [];
-            $arrayDataUse = [];
+    //         // check data type
+    //         $arrayDataCurrent = [];
+    //         $arrayDataUse = [];
 
-            $nextStationWaittimeMixAndExt = [];
-            $nextStationWaittimeExtAndSep = [];
+    //         $nextStationWaittimeMixAndExt = [];
+    //         $nextStationWaittimeExtAndSep = [];
 
-            $checkErrorProcessArray = [];
-            $nextStationFail = false;
+    //         $checkErrorProcessArray = [];
+    //         $nextStationFail = false;
             
-            foreach($sqljobcard->result() as $rs){
+    //         foreach($sqljobcard->result() as $rs){
                 
-                $startDatetimeVar = $rs->TransDateFormTime;
-                $endDatetimeVar = $rs->TransDateToTime;
+    //             $startDatetimeVar = $rs->TransDateFormTime;
+    //             $endDatetimeVar = $rs->TransDateToTime;
 
-                //คำนวณ Lead Time ของแต่ละ Station
-                //ชุดข้อมูลใหม่
-                $dataleadtime_time = $rs->timeDifference;
-                $dataleadtime_seconds = $rs->timedifference_seconds;
+    //             //คำนวณ Lead Time ของแต่ละ Station
+    //             //ชุดข้อมูลใหม่
+    //             $dataleadtime_time = $rs->timeDifference;
+    //             $dataleadtime_seconds = $rs->timedifference_seconds;
 
-                //คำนวณ Lead Time ของแต่ละ Station
-                if($rs->OpeNum == '10'){
-                    $leadtimeMix_seconds[] = $dataleadtime_seconds;
-                }else if($rs->OpeNum == '20'){
-                    $leadtimeExt_seconds[] = $dataleadtime_seconds;
-                }else if($rs->OpeNum == '30'){
-                    $leadtimeSep_seconds[] = $dataleadtime_seconds;
-                }
-                $leadtimeSumMix_seconds = array_sum($leadtimeMix_seconds);
-                $leadtimeSumExt_seconds = array_sum($leadtimeExt_seconds);
-                $leadtimeSumSep_seconds = array_sum($leadtimeSep_seconds);
-                //คำนวณ Lead Time ของแต่ละ Station
-
-
-
-                //คำนวณหาค่า Wait time ใน operation ตัวเอง
-                if(empty($dataCurrent) || $rs->OpeNum === $dataCurrent[count($dataCurrent) - 1]){
-                    $dataWaitCalc = array(
-                        "openum" => $rs->OpeNum,
-                        "fromtime" => $rs->TransDateFormTime,
-                        "totime" => $rs->TransDateToTime,
-                    );
-                    $dataCurrent[] = $rs->OpeNum;
-                    $dataWaitUse[] = $dataWaitCalc;
-                    $dataWaitTimedifference_seconds[] = $rs->timedifference_seconds;
-                }else if($rs->OpeNum !== $dataCurrent[count($dataCurrent) - 1]){
-                    if(count($dataWaitUse) > 1){
-                        if($dataCurrent[count($dataCurrent) - 1] == "10"){
-                            $dataGroupMixTimedifference_seconds[] = array_sum($dataWaitTimedifference_seconds);
-                            $dataGroupMix[] = strtotime(end($dataWaitUse)['totime']) - strtotime($dataWaitUse[0]['fromtime']);
-                            $dataWaitTimedifference_seconds = [];
-                        }else if($dataCurrent[count($dataCurrent) - 1] == "20"){
-                            $dataGroupExt[] = strtotime(end($dataWaitUse)['totime']) - strtotime($dataWaitUse[0]['fromtime']);
-                            $dataGroupExtTimedifference_seconds[] = array_sum($dataWaitTimedifference_seconds);
-                        }else if($dataCurrent[count($dataCurrent) - 1] == "20"){
-                            $dataGroupSep[] = strtotime(end($dataWaitUse)['totime']) - strtotime($dataWaitUse[0]['fromtime']);
-                            $dataGroupSepTimedifference_seconds[] = array_sum($dataWaitTimedifference_seconds);
-                        }
-                    }
-                    $dataCurrent = [];
-                    $dataWaitUse = [];
-                    $dataWaitTimedifference_seconds = [];
-                }
-                //คำนวณหาค่า Wait time ใน operation ตัวเอง
-            }
+    //             //คำนวณ Lead Time ของแต่ละ Station
+    //             if($rs->OpeNum == '10'){
+    //                 $leadtimeMix_seconds[] = $dataleadtime_seconds;
+    //             }else if($rs->OpeNum == '20'){
+    //                 $leadtimeExt_seconds[] = $dataleadtime_seconds;
+    //             }else if($rs->OpeNum == '30'){
+    //                 $leadtimeSep_seconds[] = $dataleadtime_seconds;
+    //             }
+    //             $leadtimeSumMix_seconds = array_sum($leadtimeMix_seconds);
+    //             $leadtimeSumExt_seconds = array_sum($leadtimeExt_seconds);
+    //             $leadtimeSumSep_seconds = array_sum($leadtimeSep_seconds);
+    //             //คำนวณ Lead Time ของแต่ละ Station
 
 
-            foreach($sqljobcard->result() as $rs){
-                $mixFromtime = 0;
-                $mixTotime = 0;
-                $extFromtime = 0;
-                $extTotime = 0;
-                $sepFromtime = 0;
-                $sepTotime = 0;
 
-                // คำนวณหาค่า Wait time ของแต่ละ Station
-                if(empty($arrayDataCurrent) || $rs->OpeNum === $arrayDataCurrent[count($arrayDataCurrent) - 1]){
-                    $dataWaitCalc = array(
-                        "openum" => $rs->OpeNum,
-                        "fromtime" => $rs->TransDateFormTime,
-                        "totime" => $rs->TransDateToTime
-                    );
-                    $arrayDataCurrent[] = $rs->OpeNum;
-                    $arrayDataUse[] = $dataWaitCalc;
-                    $checkErrorProcessArray[] = $rs->OpeNum;
-                }else if($rs->OpeNum !== $arrayDataCurrent[count($arrayDataCurrent) - 1]){
-                    // Check ข้อมูลว่าวิ่งตามที่ควรจะเป็นไหม
-                    if(in_array($rs->OpeNum , $checkErrorProcessArray)){
-                        if(strtotime($rs->TransDateFormTime) < strtotime($arrayDataUse[count($arrayDataUse)-1]['totime'])){
-                            $nextStationFail = true;
-                        }else{
-                            if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "10"){
-                                $mixTotime = end($arrayDataUse)['totime'];
-                                $arrayDataUse = [];
-                                $arrayDataCurrent = [];
-                                $dataWaitCalc = array(
-                                    "openum" => $rs->OpeNum,
-                                    "fromtime" => $rs->TransDateFormTime,
-                                    "totime" => $rs->TransDateToTime
-                                );
-                                $arrayDataUse[] = $dataWaitCalc;
-                                $arrayDataCurrent[] = $rs->OpeNum;
-                            }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "20"){
-                                $extFromtime = $arrayDataUse[0]['fromtime'];
-                                $extTotime = end($arrayDataUse)['totime'];
-                                $arrayDataUse = [];
-                                $arrayDataCurrent = [];
-                                $dataWaitCalc = array(
-                                    "openum" => $rs->OpeNum,
-                                    "fromtime" => $rs->TransDateFormTime,
-                                    "totime" => $rs->TransDateToTime
-                                );
-                                $arrayDataUse[] = $dataWaitCalc;
-                                $arrayDataCurrent[] = $rs->OpeNum;
-                            }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "30"){
-                                $sepFromtime = $arrayDataUse[0]['fromtime'];
-                                $sepTotime = end($arrayDataUse)['totime'];
-                                $arrayDataUse = [];
-                                $arrayDataCurrent = [];
-                                $dataWaitCalc = array(
-                                    "openum" => $rs->OpeNum,
-                                    "fromtime" => $rs->TransDateFormTime,
-                                    "totime" => $rs->TransDateToTime
-                                );
-                                $arrayDataUse[] = $dataWaitCalc;
-                                $arrayDataCurrent[] = $rs->OpeNum;
-                            }
-                        }
-                    }else{
-                        if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "10"){
-                            $mixTotime = end($arrayDataUse)['totime'];
-                            $arrayDataUse = [];
-                            $arrayDataCurrent = [];
-                            $dataWaitCalc = array(
-                                "openum" => $rs->OpeNum,
-                                "fromtime" => $rs->TransDateFormTime,
-                                "totime" => $rs->TransDateToTime
-                            );
-                            $arrayDataUse[] = $dataWaitCalc;
-                            $arrayDataCurrent[] = $rs->OpeNum;
-                        }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "20"){
-                            $extFromtime = $arrayDataUse[0]['fromtime'];
-                            $extTotime = end($arrayDataUse)['totime'];
-                            $arrayDataUse = [];
-                            $arrayDataCurrent = [];
-                            $dataWaitCalc = array(
-                                "openum" => $rs->OpeNum,
-                                "fromtime" => $rs->TransDateFormTime,
-                                "totime" => $rs->TransDateToTime
-                            );
-                            $arrayDataUse[] = $dataWaitCalc;
-                            $arrayDataCurrent[] = $rs->OpeNum;
-                        }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "30"){
-                            $sepFromtime = $arrayDataUse[0]['fromtime'];
-                            $sepTotime = end($arrayDataUse)['totime'];
-                            $arrayDataUse = [];
-                            $arrayDataCurrent = [];
-                            $dataWaitCalc = array(
-                                "openum" => $rs->OpeNum,
-                                "fromtime" => $rs->TransDateFormTime,
-                                "totime" => $rs->TransDateToTime
-                            );
-                            $arrayDataUse[] = $dataWaitCalc;
-                            $arrayDataCurrent[] = $rs->OpeNum;
-                        }
-                    }
-                }
+    //             //คำนวณหาค่า Wait time ใน operation ตัวเอง
+    //             if(empty($dataCurrent) || $rs->OpeNum === $dataCurrent[count($dataCurrent) - 1]){
+    //                 $dataWaitCalc = array(
+    //                     "openum" => $rs->OpeNum,
+    //                     "fromtime" => $rs->TransDateFormTime,
+    //                     "totime" => $rs->TransDateToTime,
+    //                 );
+    //                 $dataCurrent[] = $rs->OpeNum;
+    //                 $dataWaitUse[] = $dataWaitCalc;
+    //                 $dataWaitTimedifference_seconds[] = $rs->timedifference_seconds;
+    //             }else if($rs->OpeNum !== $dataCurrent[count($dataCurrent) - 1]){
+    //                 if(count($dataWaitUse) > 1){
+    //                     if($dataCurrent[count($dataCurrent) - 1] == "10"){
+    //                         $dataGroupMixTimedifference_seconds[] = array_sum($dataWaitTimedifference_seconds);
+    //                         $dataGroupMix[] = strtotime(end($dataWaitUse)['totime']) - strtotime($dataWaitUse[0]['fromtime']);
+    //                         $dataWaitTimedifference_seconds = [];
+    //                     }else if($dataCurrent[count($dataCurrent) - 1] == "20"){
+    //                         $dataGroupExt[] = strtotime(end($dataWaitUse)['totime']) - strtotime($dataWaitUse[0]['fromtime']);
+    //                         $dataGroupExtTimedifference_seconds[] = array_sum($dataWaitTimedifference_seconds);
+    //                     }else if($dataCurrent[count($dataCurrent) - 1] == "20"){
+    //                         $dataGroupSep[] = strtotime(end($dataWaitUse)['totime']) - strtotime($dataWaitUse[0]['fromtime']);
+    //                         $dataGroupSepTimedifference_seconds[] = array_sum($dataWaitTimedifference_seconds);
+    //                     }
+    //                 }
+    //                 $dataCurrent = [];
+    //                 $dataWaitUse = [];
+    //                 $dataWaitTimedifference_seconds = [];
+    //             }
+    //             //คำนวณหาค่า Wait time ใน operation ตัวเอง
+    //         }
+
+
+    //         foreach($sqljobcard->result() as $rs){
+    //             $mixFromtime = 0;
+    //             $mixTotime = 0;
+    //             $extFromtime = 0;
+    //             $extTotime = 0;
+    //             $sepFromtime = 0;
+    //             $sepTotime = 0;
+
+    //             // คำนวณหาค่า Wait time ของแต่ละ Station
+    //             if(empty($arrayDataCurrent) || $rs->OpeNum === $arrayDataCurrent[count($arrayDataCurrent) - 1]){
+    //                 $dataWaitCalc = array(
+    //                     "openum" => $rs->OpeNum,
+    //                     "fromtime" => $rs->TransDateFormTime,
+    //                     "totime" => $rs->TransDateToTime
+    //                 );
+    //                 $arrayDataCurrent[] = $rs->OpeNum;
+    //                 $arrayDataUse[] = $dataWaitCalc;
+    //                 $checkErrorProcessArray[] = $rs->OpeNum;
+    //             }else if($rs->OpeNum !== $arrayDataCurrent[count($arrayDataCurrent) - 1]){
+    //                 // Check ข้อมูลว่าวิ่งตามที่ควรจะเป็นไหม
+    //                 if(in_array($rs->OpeNum , $checkErrorProcessArray)){
+    //                     if(strtotime($rs->TransDateFormTime) < strtotime($arrayDataUse[count($arrayDataUse)-1]['totime'])){
+    //                         $nextStationFail = true;
+    //                     }else{
+    //                         if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "10"){
+    //                             $mixTotime = end($arrayDataUse)['totime'];
+    //                             $arrayDataUse = [];
+    //                             $arrayDataCurrent = [];
+    //                             $dataWaitCalc = array(
+    //                                 "openum" => $rs->OpeNum,
+    //                                 "fromtime" => $rs->TransDateFormTime,
+    //                                 "totime" => $rs->TransDateToTime
+    //                             );
+    //                             $arrayDataUse[] = $dataWaitCalc;
+    //                             $arrayDataCurrent[] = $rs->OpeNum;
+    //                         }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "20"){
+    //                             $extFromtime = $arrayDataUse[0]['fromtime'];
+    //                             $extTotime = end($arrayDataUse)['totime'];
+    //                             $arrayDataUse = [];
+    //                             $arrayDataCurrent = [];
+    //                             $dataWaitCalc = array(
+    //                                 "openum" => $rs->OpeNum,
+    //                                 "fromtime" => $rs->TransDateFormTime,
+    //                                 "totime" => $rs->TransDateToTime
+    //                             );
+    //                             $arrayDataUse[] = $dataWaitCalc;
+    //                             $arrayDataCurrent[] = $rs->OpeNum;
+    //                         }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "30"){
+    //                             $sepFromtime = $arrayDataUse[0]['fromtime'];
+    //                             $sepTotime = end($arrayDataUse)['totime'];
+    //                             $arrayDataUse = [];
+    //                             $arrayDataCurrent = [];
+    //                             $dataWaitCalc = array(
+    //                                 "openum" => $rs->OpeNum,
+    //                                 "fromtime" => $rs->TransDateFormTime,
+    //                                 "totime" => $rs->TransDateToTime
+    //                             );
+    //                             $arrayDataUse[] = $dataWaitCalc;
+    //                             $arrayDataCurrent[] = $rs->OpeNum;
+    //                         }
+    //                     }
+    //                 }else{
+    //                     if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "10"){
+    //                         $mixTotime = end($arrayDataUse)['totime'];
+    //                         $arrayDataUse = [];
+    //                         $arrayDataCurrent = [];
+    //                         $dataWaitCalc = array(
+    //                             "openum" => $rs->OpeNum,
+    //                             "fromtime" => $rs->TransDateFormTime,
+    //                             "totime" => $rs->TransDateToTime
+    //                         );
+    //                         $arrayDataUse[] = $dataWaitCalc;
+    //                         $arrayDataCurrent[] = $rs->OpeNum;
+    //                     }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "20"){
+    //                         $extFromtime = $arrayDataUse[0]['fromtime'];
+    //                         $extTotime = end($arrayDataUse)['totime'];
+    //                         $arrayDataUse = [];
+    //                         $arrayDataCurrent = [];
+    //                         $dataWaitCalc = array(
+    //                             "openum" => $rs->OpeNum,
+    //                             "fromtime" => $rs->TransDateFormTime,
+    //                             "totime" => $rs->TransDateToTime
+    //                         );
+    //                         $arrayDataUse[] = $dataWaitCalc;
+    //                         $arrayDataCurrent[] = $rs->OpeNum;
+    //                     }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "30"){
+    //                         $sepFromtime = $arrayDataUse[0]['fromtime'];
+    //                         $sepTotime = end($arrayDataUse)['totime'];
+    //                         $arrayDataUse = [];
+    //                         $arrayDataCurrent = [];
+    //                         $dataWaitCalc = array(
+    //                             "openum" => $rs->OpeNum,
+    //                             "fromtime" => $rs->TransDateFormTime,
+    //                             "totime" => $rs->TransDateToTime
+    //                         );
+    //                         $arrayDataUse[] = $dataWaitCalc;
+    //                         $arrayDataCurrent[] = $rs->OpeNum;
+    //                     }
+    //                 }
+    //             }
                 
-                if($nextStationFail !== true){
-                    if(count($arrayDataUse) > 0){
-                        if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "10"){
-                            $mixTotime = end($arrayDataUse)['totime'];
-                        }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "20"){
-                            $extFromtime = $arrayDataUse[0]['fromtime'];
-                            $extTotime = end($arrayDataUse)['totime'];
-                        }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "30"){
-                            $sepFromtime = $arrayDataUse[0]['fromtime'];
-                            $sepTotime = end($arrayDataUse)['totime'];
-                        }
-                    }
+    //             if($nextStationFail !== true){
+    //                 if(count($arrayDataUse) > 0){
+    //                     if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "10"){
+    //                         $mixTotime = end($arrayDataUse)['totime'];
+    //                     }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "20"){
+    //                         $extFromtime = $arrayDataUse[0]['fromtime'];
+    //                         $extTotime = end($arrayDataUse)['totime'];
+    //                     }else if($arrayDataUse[count($arrayDataUse)-1]['openum'] == "30"){
+    //                         $sepFromtime = $arrayDataUse[0]['fromtime'];
+    //                         $sepTotime = end($arrayDataUse)['totime'];
+    //                     }
+    //                 }
 
-                    if($mixTotime !== 0 && $extFromtime !== 0){
-                        if(strtotime($mixTotime) < strtotime($extFromtime)){
-                            $nextStationWaittimeMixAndExt[] = strtotime($extFromtime) - strtotime($mixTotime);
-                            $mixTotime = 0;
-                            $extFromtime = 0;
-                        }
-                    }
+    //                 if($mixTotime !== 0 && $extFromtime !== 0){
+    //                     if(strtotime($mixTotime) < strtotime($extFromtime)){
+    //                         $nextStationWaittimeMixAndExt[] = strtotime($extFromtime) - strtotime($mixTotime);
+    //                         $mixTotime = 0;
+    //                         $extFromtime = 0;
+    //                     }
+    //                 }
 
-                    if($extTotime !== 0 && $sepFromtime !== 0){
-                        if(strtotime($extTotime) < strtotime($sepFromtime)){
-                            $nextStationWaittimeExtAndSep[] = strtotime($sepFromtime) - strtotime($extTotime);
-                        }
-                    }
+    //                 if($extTotime !== 0 && $sepFromtime !== 0){
+    //                     if(strtotime($extTotime) < strtotime($sepFromtime)){
+    //                         $nextStationWaittimeExtAndSep[] = strtotime($sepFromtime) - strtotime($extTotime);
+    //                     }
+    //                 }
 
-                }else{
-                    $nextStationWaittimeMixAndExt = [];
-                    $nextStationWaittimeExtAndSep = [];
+    //             }else{
+    //                 $nextStationWaittimeMixAndExt = [];
+    //                 $nextStationWaittimeExtAndSep = [];
 
-                    $nextStationWaittimeMixAndExt[] = 999999;
-                    $nextStationWaittimeExtAndSep[] = 999999;
-                }
-                // คำนวณหาค่า Wait time ของแต่ละ Station
-            }
+    //                 $nextStationWaittimeMixAndExt[] = 999999;
+    //                 $nextStationWaittimeExtAndSep[] = 999999;
+    //             }
+    //             // คำนวณหาค่า Wait time ของแต่ละ Station
+    //         }
 
-                //คำนวณหาค่า Wait time ใน operation ตัวเอง
-                //mix
-                $waittimeMixforcal = 0;
-                if(!empty($dataGroupMix)){
-                    $waittimeMixforcal = array_sum($dataGroupMix) - array_sum($dataGroupMixTimedifference_seconds);
-                }
-                //ext
-                $waittimeExtforcal = 0;
-                if(!empty($dataGroupExt)){
-                    $waittimeExtforcal = array_sum($dataGroupExt) - array_sum($dataGroupExtTimedifference_seconds);
-                }
-                //sep
-                $waittimeSepforcal = 0;
-                if(!empty($dataGroupSep)){
-                    $waittimeSepforcal = array_sum($dataGroupSep) - array_sum($dataGroupSepTimedifference_seconds);
-                }
-                //คำนวณหาค่า Wait time ใน operation ตัวเอง
+    //             //คำนวณหาค่า Wait time ใน operation ตัวเอง
+    //             //mix
+    //             $waittimeMixforcal = 0;
+    //             if(!empty($dataGroupMix)){
+    //                 $waittimeMixforcal = array_sum($dataGroupMix) - array_sum($dataGroupMixTimedifference_seconds);
+    //             }
+    //             //ext
+    //             $waittimeExtforcal = 0;
+    //             if(!empty($dataGroupExt)){
+    //                 $waittimeExtforcal = array_sum($dataGroupExt) - array_sum($dataGroupExtTimedifference_seconds);
+    //             }
+    //             //sep
+    //             $waittimeSepforcal = 0;
+    //             if(!empty($dataGroupSep)){
+    //                 $waittimeSepforcal = array_sum($dataGroupSep) - array_sum($dataGroupSepTimedifference_seconds);
+    //             }
+    //             //คำนวณหาค่า Wait time ใน operation ตัวเอง
 
-                //Chcek ว่าเป็นงาน Special หรือว่า Adjust , Rerun
-                $queryCheckAdjustRerun = $this->checkAdjustRerun($row);
-                $adjustANDrerun = "";
-                if(count($queryCheckAdjustRerun) > 1){
-                    $adjustANDrerun = implode(', ', $queryCheckAdjustRerun);
-                }else if(count($queryCheckAdjustRerun) == 1){
-                    $adjustANDrerun = implode('', $queryCheckAdjustRerun);
-                    if($nextStationFail == true){
-                        $adjustANDrerun = "Speacial";
-                    }
-                }
+    //             //Chcek ว่าเป็นงาน Special หรือว่า Adjust , Rerun
+    //             $queryCheckAdjustRerun = $this->checkAdjustRerun($row);
+    //             $adjustANDrerun = "";
+    //             if(count($queryCheckAdjustRerun) > 1){
+    //                 $adjustANDrerun = implode(', ', $queryCheckAdjustRerun);
+    //             }else if(count($queryCheckAdjustRerun) == 1){
+    //                 $adjustANDrerun = implode('', $queryCheckAdjustRerun);
+    //                 if($nextStationFail == true){
+    //                     $adjustANDrerun = "Speacial";
+    //                 }
+    //             }
 
-                $waittimeToExt1 = "";
-                $waittimeToExt2 = "";
-                $waittimeToSep1 = "";
-                $waittimeToSep2 = "";
-                $resultSumDataMixExt = 0;
-                $resultSumDataExtSep = 0;
-                if(array_sum($nextStationWaittimeMixAndExt) == 999999){
-                    $waittimeToExt1 = "Special";
-                    $waittimeToExt2 = "Special";
-                }else{
-                    $resultSumDataMixExt = array_sum($nextStationWaittimeMixAndExt);
-                    $waittimeToExt1 = conTime($resultSumDataMixExt);
-                    $waittimeToExt2 = conTimeSecToDecimal($resultSumDataMixExt);
-                }
+    //             $waittimeToExt1 = "";
+    //             $waittimeToExt2 = "";
+    //             $waittimeToSep1 = "";
+    //             $waittimeToSep2 = "";
+    //             $resultSumDataMixExt = 0;
+    //             $resultSumDataExtSep = 0;
+    //             if(array_sum($nextStationWaittimeMixAndExt) == 999999){
+    //                 $waittimeToExt1 = "Special";
+    //                 $waittimeToExt2 = "Special";
+    //             }else{
+    //                 $resultSumDataMixExt = array_sum($nextStationWaittimeMixAndExt);
+    //                 $waittimeToExt1 = conTime($resultSumDataMixExt);
+    //                 $waittimeToExt2 = conTimeSecToDecimal($resultSumDataMixExt);
+    //             }
 
-                if(array_sum($nextStationWaittimeExtAndSep) == 999999){
-                    $waittimeToSep1 = "Special";
-                    $waittimeToSep2 = "Special";
-                }else{
-                    $resultSumDataExtSep = array_sum($nextStationWaittimeExtAndSep);
-                    $waittimeToSep1 = conTime($resultSumDataExtSep);
-                    $waittimeToSep2 = conTimeSecToDecimal($resultSumDataExtSep);
-                }
+    //             if(array_sum($nextStationWaittimeExtAndSep) == 999999){
+    //                 $waittimeToSep1 = "Special";
+    //                 $waittimeToSep2 = "Special";
+    //             }else{
+    //                 $resultSumDataExtSep = array_sum($nextStationWaittimeExtAndSep);
+    //                 $waittimeToSep1 = conTime($resultSumDataExtSep);
+    //                 $waittimeToSep2 = conTimeSecToDecimal($resultSumDataExtSep);
+    //             }
 
             
-            $dataAll = array(
-                "Prodid" => $row,
-                "dataAreaid" => $areaid,
-                "itemno" => $itemno,
-                "batchno" => $batchno,
-                "qtysched" => number_format($qtysched , 3),
-                "resultCheckAdjust" => $adjustANDrerun,
+    //         $dataAll = array(
+    //             "Prodid" => $row,
+    //             "dataAreaid" => $areaid,
+    //             "itemno" => $itemno,
+    //             "batchno" => $batchno,
+    //             "qtysched" => number_format($qtysched , 3),
+    //             "resultCheckAdjust" => $adjustANDrerun,
 
-                "dataMixLeadtime" => conTimeSecToDecimal($leadtimeSumMix_seconds),
-                "dataMixLeadtime2" => conTime($leadtimeSumMix_seconds),
-                "dataMixWaitTime" => conTimeSecToDecimal($waittimeMixforcal),
-                "dataMixWaitTime2" => conTime($waittimeMixforcal),
+    //             "dataMixLeadtime" => conTimeSecToDecimal($leadtimeSumMix_seconds),
+    //             "dataMixLeadtime2" => conTime($leadtimeSumMix_seconds),
+    //             "dataMixWaitTime" => conTimeSecToDecimal($waittimeMixforcal),
+    //             "dataMixWaitTime2" => conTime($waittimeMixforcal),
 
-                "dataExtWait1" => $waittimeToExt2,
-                "dataExtWait2" => $waittimeToExt1,
+    //             "dataExtWait1" => $waittimeToExt2,
+    //             "dataExtWait2" => $waittimeToExt1,
 
-                "dataExtLeadtime" => conTimeSecToDecimal($leadtimeSumExt_seconds),
-                "dataExtLeadtime2" => conTime($leadtimeSumExt_seconds),
-                "dataExtWaitTime" => conTimeSecToDecimal($waittimeExtforcal),
-                "dataExtWaitTime2" => conTime($waittimeExtforcal),
+    //             "dataExtLeadtime" => conTimeSecToDecimal($leadtimeSumExt_seconds),
+    //             "dataExtLeadtime2" => conTime($leadtimeSumExt_seconds),
+    //             "dataExtWaitTime" => conTimeSecToDecimal($waittimeExtforcal),
+    //             "dataExtWaitTime2" => conTime($waittimeExtforcal),
 
-                "dataSepWait1" => $waittimeToSep1,
-                "dataSepWait2" => $waittimeToSep2,
+    //             "dataSepWait1" => $waittimeToSep1,
+    //             "dataSepWait2" => $waittimeToSep2,
 
-                "dataSepLeadtime" => conTimeSecToDecimal($leadtimeSumSep_seconds),
-                "dataSepLeadtime2" => conTime($leadtimeSumSep_seconds),
-                "dataSepWaitTime" => conTimeSecToDecimal($waittimeSepforcal),
-                "dataSepWaitTime2" => conTime($waittimeSepforcal),
+    //             "dataSepLeadtime" => conTimeSecToDecimal($leadtimeSumSep_seconds),
+    //             "dataSepLeadtime2" => conTime($leadtimeSumSep_seconds),
+    //             "dataSepWaitTime" => conTimeSecToDecimal($waittimeSepforcal),
+    //             "dataSepWaitTime2" => conTime($waittimeSepforcal),
 
-                "nextStationFail" => $nextStationFail,
-                "startDocumentData" => $sqlStartReceivedDoc->row(),
+    //             "nextStationFail" => $nextStationFail,
+    //             "startDocumentData" => $sqlStartReceivedDoc->row(),
 
-                "startPrint" => $sqlStartPrint->row(),
-                "reserved" => $sqlReserved->row(),
-                "procure" => $sqlProcure->row(),
-                "procuredone" => $sqlProcuredone->row(),
+    //             "startPrint" => $sqlStartPrint->row(),
+    //             "reserved" => $sqlReserved->row(),
+    //             "procure" => $sqlProcure->row(),
+    //             "procuredone" => $sqlProcuredone->row(),
 
-                "leadtimeStartDocToReserved" => conTime($leadtimeStartDocToReserved),
-                "leadtimeStartDocToReservedDecimal" => conTimeSecToDecimal($leadtimeStartDocToReserved),
-                "leadtimeReservedToProcure" => conTime($leadtimeReservedToProcure),
-                "leadtimeReservedToProcureDecimal" => conTimeSecToDecimal($leadtimeReservedToProcure),
-                "leadtimeProcureToProcuredone" => conTime($leadtimeProcureToProcuredone),
-                "leadtimeProcureToProcuredoneDecimal" => conTimeSecToDecimal($leadtimeProcureToProcuredone),
+    //             "leadtimeStartDocToReserved" => conTime($leadtimeStartDocToReserved),
+    //             "leadtimeStartDocToReservedDecimal" => conTimeSecToDecimal($leadtimeStartDocToReserved),
+    //             "leadtimeReservedToProcure" => conTime($leadtimeReservedToProcure),
+    //             "leadtimeReservedToProcureDecimal" => conTimeSecToDecimal($leadtimeReservedToProcure),
+    //             "leadtimeProcureToProcuredone" => conTime($leadtimeProcureToProcuredone),
+    //             "leadtimeProcureToProcuredoneDecimal" => conTimeSecToDecimal($leadtimeProcureToProcuredone),
 
-                "checkadjustremixnormal" => $queryCheckAdjustRerun
-            );
-
-
-            if(count($sqljobcard->result()) !== 0){
-                $formno[] = $dataAll;
-                $testJobcardData[] = $sqljobcard->result();
-            }
-
-        }
+    //             "checkadjustremixnormal" => $queryCheckAdjustRerun
+    //         );
 
 
-        $output = array(
-            "msg" => "ดึงข้อมูลสำเร็จแล้วนะ",
-            "status" => "Select Data Success",
-            // "result" => $mergedArray,
-            "test" => $formno,
-            // "test2" => $testJobcardData
-        );
+    //         if(count($sqljobcard->result()) !== 0){
+    //             $formno[] = $dataAll;
+    //             $testJobcardData[] = $sqljobcard->result();
+    //         }
 
-        echo json_encode($output);
+    //     }
 
-    }
+
+    //     $output = array(
+    //         "msg" => "ดึงข้อมูลสำเร็จแล้วนะ",
+    //         "status" => "Select Data Success",
+    //         // "result" => $mergedArray,
+    //         "test" => $formno,
+    //         // "test2" => $testJobcardData
+    //     );
+
+    //     echo json_encode($output);
+
+    // }
 
 
     public function getdataProdleadtime()
@@ -1006,8 +1006,10 @@ class Mainapi_model extends CI_Model {
                     }
 
                     $procutionCompToGr = "";
-                    if($postGrCalc > $production_completedClac){
+                    if($postGrCalc > $production_completedClac && $production_completed !== false){
                         $procutionCompToGr = $postGrCalc - $production_completedClac;
+                    }else{
+                        $procutionCompToGr = "";
                     }
 
     
@@ -1073,6 +1075,7 @@ class Mainapi_model extends CI_Model {
                         "productionCompToGr" => conTime($procutionCompToGr),
                         "productionCompToGrDecimal" => conTimeSecToDecimal($procutionCompToGr),
                         "confirmshippingdate" => conDateFromDb($confirmshippingdate),
+                        "test" => $sqljobcard->num_rows()
                     );
     
                     // if(count($sqljobcard->result()) !== 0){
@@ -1151,32 +1154,30 @@ class Mainapi_model extends CI_Model {
         }
 
 
-        $queryProdPlan = $this->dbsql->query("SELECT
+        $queryProdPlan = $this->dbsql->query("SELECT DISTINCT
         prodtable.dataareaid,
         prodtable.prodid,
-		prodtable.inventdimid,
-		prodtable.itemid,
-		inventdim.inventbatchid,
+        prodtable.inventdimid,
+        prodtable.itemid,
+        inventdim.inventbatchid,
         prodtable.qtysched,
         prodtable.slc_shippingdateconfirmed
         FROM
-        prodtable
-		inner join inventdim on inventdim.inventdimid = prodtable.inventdimid
-        inner join prodroute on prodroute.prodid = prodtable.prodid and prodroute.dataareaid = prodtable.dataareaid
-        where 
-        prodtable.prodstatus in (7) 
-        and inventdim.configid in ('TWIN-L' , 'TWIN-58')
-        and prodroute.oprid NOT LIKE '%repac%' $queryFilterDate $queryFilterProdid $queryFilterBatchno $queryFilterItemno 
-        -- AND prodtable.finisheddate between '2023-08-01' and '2023-10-09'
-        -- and prodtable.prodid = 'PD66004540'
-        group by prodtable.dataareaid , 
-        prodtable.prodid , 
-        prodtable.inventdimid , 
-        prodtable.itemid , 
-        inventdim.inventbatchid , 
-        prodtable.qtysched,
-        prodtable.realdate,
-        prodtable.slc_shippingdateconfirmed
+        prodtable 
+        INNER JOIN inventdim ON inventdim.inventdimid = prodtable.inventdimid
+        WHERE 
+        prodtable.prodstatus IN (7) 
+        AND inventdim.configid IN ('TWIN-L', 'TWIN-58')
+        -- AND prodtable.finisheddate BETWEEN '2024-01-01' AND '2024-01-30' 
+        $queryFilterDate $queryFilterProdid $queryFilterBatchno $queryFilterItemno
+        AND prodtable.prodid IN (
+            SELECT prodid
+            FROM prodroute
+            WHERE dataareaid = prodtable.dataareaid
+                AND prodroute.prodid = prodtable.prodid
+                AND prodroute.oprid NOT LIKE '%repac%'
+        )
+
         order by prodtable.prodid desc
         OFFSET $startIndex ROWS
         FETCH NEXT $pageSize ROWS ONLY;
@@ -1218,32 +1219,30 @@ class Mainapi_model extends CI_Model {
         }
 
 
-        $queryProdPlan = $this->dbsql->query("SELECT
+        $queryProdPlan = $this->dbsql->query("SELECT DISTINCT
         prodtable.dataareaid,
         prodtable.prodid,
-		prodtable.inventdimid,
-		prodtable.itemid,
-		inventdim.inventbatchid,
+        prodtable.inventdimid,
+        prodtable.itemid,
+        inventdim.inventbatchid,
         prodtable.qtysched,
-        prodtable.slc_shippingdateconfirmed
+        prodtable.slc_shippingdateconfirmed,
+        prodtable.realdate
         FROM
-        prodtable
-		inner join inventdim on inventdim.inventdimid = prodtable.inventdimid
-        inner join prodroute on prodroute.prodid = prodtable.prodid and prodroute.dataareaid = prodtable.dataareaid
-        where 
-        prodtable.prodstatus in (7) 
-        and inventdim.configid in ('TWIN-L' , 'TWIN-58')
-        and prodroute.oprid NOT LIKE '%repac%' $queryFilterDate $queryFilterProdid $queryFilterBatchno $queryFilterItemno 
-        -- AND prodtable.finisheddate between '2023-08-01' and '2023-10-09'
-        -- and prodtable.prodid = 'PD66004080'
-        group by prodtable.dataareaid , 
-        prodtable.prodid , 
-        prodtable.inventdimid , 
-        prodtable.itemid , 
-        inventdim.inventbatchid , 
-        prodtable.qtysched,
-        prodtable.realdate,
-        prodtable.slc_shippingdateconfirmed
+        prodtable 
+        INNER JOIN inventdim ON inventdim.inventdimid = prodtable.inventdimid
+        WHERE 
+        prodtable.prodstatus IN (7) 
+        AND inventdim.configid IN ('TWIN-L', 'TWIN-58')
+        -- AND prodtable.finisheddate BETWEEN '2024-01-01' AND '2024-01-30' 
+        $queryFilterDate $queryFilterProdid $queryFilterBatchno $queryFilterItemno
+        AND prodtable.prodid IN (
+            SELECT prodid
+            FROM prodroute
+            WHERE dataareaid = prodtable.dataareaid
+                AND prodroute.prodid = prodtable.prodid
+                AND prodroute.oprid NOT LIKE '%repac%'
+        )
         order by prodtable.realdate desc
         ");
 
@@ -1286,7 +1285,7 @@ class Mainapi_model extends CI_Model {
         count(DISTINCT prodtable.prodid)AS total
         -- prodtable.prodid
         FROM prodtable
-		inner join inventdim on inventdim.inventdimid = prodtable.inventdimid
+		inner join inventdim on inventdim.inventdimid = prodtable.inventdimid and inventdim.dataareaid = prodtable.dataareaid
         inner join prodroute on prodroute.prodid = prodtable.prodid and prodroute.dataareaid = prodtable.dataareaid
         where 
         prodtable.prodstatus in (7) 
@@ -1515,6 +1514,8 @@ class Mainapi_model extends CI_Model {
         if($this->input->post("startdate") != "" && $this->input->post("enddate") != ""){
             $startdate = $this->input->post("startdate");
             $enddate = $this->input->post("enddate");
+            // $startdate = "2024-03-01";
+            // $enddate = "2024-03-30";
             $prodid = $this->input->post("prodid");
             $batchno = $this->input->post("batchno");
             $itemno = $this->input->post("itemno");
@@ -1952,7 +1953,7 @@ class Mainapi_model extends CI_Model {
                     $production_completedClac = strtotime($production_completed);
                     $production_completed = conDateTimeFromDb($production_completed);
                 }else{
-                    $production_completedClac = "";
+                    $production_completedClac = 0;
                 }
 
                 //หาค่าของวันเวลา Post GR
@@ -1962,7 +1963,7 @@ class Mainapi_model extends CI_Model {
                     $postGrCalc = strtotime(conDateTimeToDb($this->queryPostGr($prodid , $areaid)->row()->posteddatetime));
                     $postGrDatetime = conDateTimeFromDb($this->queryPostGr($prodid , $areaid)->row()->posteddatetime);
                 }else{
-                    $postGrCalc = "";
+                    $postGrCalc = 0;
                     $postGrDatetime = "";
                 }
 
@@ -2040,6 +2041,14 @@ class Mainapi_model extends CI_Model {
                 $dataResult[] = $dataAll;
 
             }// End Loop
+
+            // $output = array(
+            //     "result" => $dataResult
+            // );
+
+
+
+
 
 
             //Create Excel file
@@ -2158,8 +2167,18 @@ class Mainapi_model extends CI_Model {
             header('Content-Disposition: attachment;filename="รายงาน Production leadtime-'.$contoTime.'.xlsx"');
             header('Cache-Control: max-age=0');
             $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-            echo $objWriter->save('php://output');
+            $objWriter->save('php://output');
+
+            $objPHPExcel->disconnectWorksheets();
+            unset($objPHPExcel);
         }
+        // else{
+        //     $output = array(
+        //         "result" => null
+        //     );
+        // }
+
+        // echo json_encode($output);
 
     }
 
